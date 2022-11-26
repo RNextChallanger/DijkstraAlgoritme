@@ -28,7 +28,7 @@ namespace Pathfinder
 
             var pointsToColor = path
                 .Skip(1)
-                .SkipLast(1)
+                .SkipLast(0) // skip last veranderd van 1 naar 0
                 .Select(a => NodeCoordinates[a]);
 
             foreach (var point in pointsToColor)

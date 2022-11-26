@@ -45,7 +45,10 @@ namespace Pathfinder
 
     internal class Node
     {
-
+        public int Id { get; set; }
+        public double Distance { get; set; }
+        public Node PathVia { get; set; }
+        public bool Visited { get; set; }
     }
 
     internal class Edge
