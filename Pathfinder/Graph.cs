@@ -45,7 +45,8 @@ namespace Pathfinder
 
     internal class Node
     {
-
+        public bool visited;
+        public double delta;
     }
 
     internal class Edge
