@@ -10,12 +10,12 @@ namespace Pathfinder
 
         public static IEnumerable<Node> ShortestPath(Graph graph, Node from, Node to)
         {
-            GetPathsForTarget(graph, to, new Path(from));
+            GetShortestPath(graph, to, new Path(from));
 
             return _shortestPath.Nodes;
         }
 
-        private static void GetPathsForTarget(Graph graph, Node to, Path path)
+        private static void GetShortestPath(Graph graph, Node to, Path path)
         {
             var lastNode = path.Nodes.Last();
             // We reached the target.
@@ -37,7 +37,7 @@ namespace Pathfinder
             {
                 var newPath = new Path(path);
                 newPath.AddNode(Neighbor, Weight);
-                GetPathsForTarget(graph, to, newPath);
+                GetShortestPath(graph, to, newPath);
             }
         }
 
