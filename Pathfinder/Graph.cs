@@ -45,6 +45,9 @@ namespace Pathfinder
 
     internal class Node
     {
+        public double Distance { get; set; } = double.PositiveInfinity;
+        public bool Visited { get; set; }
+        public Node Parent { get; set; }
 
     }
 
