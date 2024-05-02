@@ -45,7 +45,7 @@ namespace Pathfinder
 
     internal class Node
     {
-
+        public int Id { get; set; }
     }
 
     internal class Edge
