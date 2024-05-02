@@ -20,6 +20,15 @@ namespace Pathfinder
                 )
              );
 
+            // if Node does not use Id property use the following queue instead
+            /*
+                 SortedSet<(double, Node)> priorityQueue = new SortedSet<(double, Node)>(
+                    Comparer<(double, Node)>.Create((a, b) => 
+                        a.Item1.CompareTo(b.Item1) != 0  ? a.Item1.CompareTo(b.Item1) : a.Item2.GetHashCode().CompareTo(b.Item2.GetHashCode())
+                    )
+                 );
+             */
+
             // set all nodes as empty
             foreach (Node node in graph.Nodes) 
             {
