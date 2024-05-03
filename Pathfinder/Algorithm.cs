@@ -95,10 +95,13 @@ namespace Pathfinder
                 // reverse list so from is first node
                 shortestWeightNodePath.Reverse();
 
+                //Console.WriteLine(shortestWeightNodePath.Count);
+                Console.WriteLine("To Node is found");
                 return shortestWeightNodePath;
             }
             else
             {
+                Console.WriteLine("To Node is not found");
                 return Enumerable.Empty<Node>();
             }
         }
