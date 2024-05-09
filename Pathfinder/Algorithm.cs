@@ -5,7 +5,8 @@
     using System.Linq;
 
     internal static class Algorithm {
-        private static List<NodeData> NodeWeights = new List<NodeData>();
+        private static readonly Dictionary<Node, NodeData> NodeWeights = new Dictionary<Node, NodeData>();
+        private static readonly HashSet<Node> VisitedNodes = new HashSet<Node>();
 
         /// <summary>
         /// Returns the shortest path using the 'Weighted Graph' Algorithm
@@ -26,27 +27,28 @@
         /// <param name="graph"></param>
         /// <param name="from"></param>
         private static void CalculateNodeWeights(Graph graph, Node from) {
-            HashSet<Node> visitedNodes = new HashSet<Node>();
             
             // Add starting node
             NodeData currentNode = new NodeData(from);
-            NodeWeights.Add(currentNode);
+            NodeWeights.Add(from, currentNode);
             
             // Scan all reachable neighbours from the current node. Then select a new node with the lowest TotalWeight.
             while (currentNode != null) {
                 ScanNodeNeighbors(graph, currentNode);
-                visitedNodes.Add(currentNode.Node);
-                currentNode = NodeWeights.Where(x => !visitedNodes.Contains(x.Node)).OrderBy(x => x.TotalWeight).FirstOrDefault();
+                VisitedNodes.Add(currentNode.Node);
+                currentNode = NodeWeights.Values.Where(x => !VisitedNodes.Contains(x.Node)).OrderBy(x => x.TotalWeight).FirstOrDefault();
             }
         }
 
         private static void ScanNodeNeighbors(Graph graph, NodeData from) {
             foreach ((double weight, Node neighbor) in graph.Neighbors(from.Node)) {
-                NodeData current = NodeWeights.SingleOrDefault(x => x.Node == neighbor);
+                if (VisitedNodes.Contains(from.Node)) continue;
+                
+                bool exists = NodeWeights.TryGetValue(neighbor, out NodeData current);
 
                 // Node is not visited earlier, add to NodeWeights
-                if (current is null) {
-                    NodeWeights.Add(new NodeData(neighbor) { TotalWeight = weight, PreviousNode = from.Node });
+                if (!exists) {
+                    NodeWeights.Add(neighbor, new NodeData(neighbor) { TotalWeight = weight, PreviousNode = from.Node });
                     continue;
                 } 
                 
@@ -66,16 +68,16 @@
         /// <returns>A list of nodes </returns>
         /// <exception cref="InvalidOperationException">Throws when the node is not in <see cref="NodeWeights"/>. This happens when there is no path to the destination node.</exception>
         private static IEnumerable<Node> CalculatePath(Node to) {
-            NodeWeights = NodeWeights.OrderBy(x => x.TotalWeight).ToList();
+            List<NodeData> sortedNodeWeights = NodeWeights.Values.OrderBy(x => x.TotalWeight).ToList();
             
-            NodeData bestNode = NodeWeights.FirstOrDefault(x => x.Node == to);
+            NodeData bestNode = sortedNodeWeights.FirstOrDefault(x => x.Node == to);
             if (bestNode == null) throw new InvalidOperationException("No route to node 'to' was found");
             
             List<Node> shortestPath = new List<Node>();
             while (bestNode != null) {
                 // Note we need to insert in the begin of the list, because we track the route backwards via the PreviousNode.
                 shortestPath.Insert(0, bestNode.Node);
-                bestNode = NodeWeights.FirstOrDefault(x => x.Node == bestNode.PreviousNode);
+                bestNode = sortedNodeWeights.FirstOrDefault(x => x.Node == bestNode.PreviousNode);
             }
 
             return shortestPath;
