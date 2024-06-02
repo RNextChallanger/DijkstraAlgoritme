@@ -45,7 +45,9 @@ namespace Pathfinder
 
     internal class Node
     {
-
+        public double Cost { get; set; }
+        public bool Explored { get; set; }
+        public Node Parent { get; set; }
     }
 
     internal class Edge
