@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,10 +6,12 @@ namespace Pathfinder
 {
     internal static class Algorithm
     {
+        /// <summary>
+        /// A comparer that handles duplicate keys by treating equal keys as greater.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the keys to compare.</typeparam>
         public class DuplicateKeyComparer<TKey> : IComparer<TKey> where TKey : IComparable
         {
-            IComparer<TKey> Members;
-
             public int Compare(TKey x, TKey y)
             {
                 int result = x.CompareTo(y);
@@ -21,19 +23,29 @@ namespace Pathfinder
             }
         }
 
+
+        /// <summary>
+        /// Finds the shortest path between two nodes in a graph using Dijkstra's algorithm.
+        /// </summary>
+        /// <param name="graph">The graph containing the nodes and edges.</param>
+        /// <param name="from">The starting node.</param>
+        /// <param name="to">The destination node.</param>
+        /// <returns>A tuple containing the shortest path and the explored nodes.</returns>
+
         public static IEnumerable<Node> ShortestPath(Graph graph, Node from, Node to)
         {
             foreach (Node node in graph.Nodes)
             {
                 node.Cost = double.MaxValue;
                 node.Explored = false;
+                node.Parent = null;
             }
 
             from.Cost = 0;
-            from.Explored = false;
 
             SortedList<double, Node> queue = new SortedList<double, Node>(new DuplicateKeyComparer<double>());
 
+            // Prime the queue with the start node
             queue.Add(0, from);
 
             while (queue.Count > 0)
@@ -41,12 +53,11 @@ namespace Pathfinder
                 var curNode = queue.FirstOrDefault();
                 queue.RemoveAt(0);
 
-                // if the node is explored we can skip it
+                // If a node is explored we can skip it
                 if (curNode.Value.Explored == true) { continue; }
 
-                foreach (Edge edge in graph.Edges.Where(e => e.From == curNode.Value))
+                foreach (Edge edge in graph.Edges.Where(e => e.From == curNode.Value).OrderBy(e => e.Weight))
                 {
-                    // Update de cost in de target node
                     double newCost = curNode.Key + edge.Weight;
 
                     if (newCost < edge.To.Cost)
@@ -55,41 +66,48 @@ namespace Pathfinder
                         edge.To.Cost = newCost;
                         edge.To.Parent = curNode.Value;
 
-                        // Voeg de target node toe aan de queue
                         queue.Add(edge.To.Cost, edge.To);
+                    }
+
+                    if (edge.To == to)
+                    {
+                        // We found the shortest path, we can stop now
+                        queue = new SortedList<double, Node>();
+                        break;
                     }
                 }
 
-                // We zijn nu klaar, markeer de current node als explored
                 curNode.Value.Explored = true;
             }
 
-            var result = to.Parent;
-
-            return LinkedParentToList(result);
-
-            return Enumerable.Empty<Node>();
-        }
-
-        public static IEnumerable<Node> LinkedParentToList(Node node)
-        {
-            var nodeList = new List<Node>();
-            // Add the initial node
-            nodeList.Add(node);
-
-            var currentNode = node;
-
-            while (currentNode.Parent != null)
+            if (to.Parent == null)
             {
-                // Add the current node to the list
-                nodeList.Add(currentNode);
-
-                // Update the currentNode to the parrent of this node
-                currentNode = currentNode.Parent;
+                // There is no valid route available
+                return new List<Node>();
             }
 
-            // Now add the final node
-            nodeList.Add(currentNode);
+            return LinkedNodesToList(to);
+        }
+
+        /// <summary>
+        /// Converts a linked list of nodes to a list of nodes.
+        /// </summary>
+        /// <param name="node">The final node in the path.</param>
+        /// <returns>A list of nodes representing the path.</returns>
+        public static IEnumerable<Node> LinkedNodesToList(Node node)
+        {
+            var nodeList = new List<Node>();
+
+            while (node != null)
+            {
+                // Add the current node to the list
+                nodeList.Add(node);
+
+                // Update the currentNode to the parrent of this node
+                node = node.Parent;
+            }
+
+            nodeList.Reverse();
             return nodeList;
         }
     }
