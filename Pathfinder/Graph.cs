@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Pathfinder
@@ -43,9 +44,48 @@ namespace Pathfinder
         }
     }
 
-    internal class Node
+    internal class Node : IComparable<Node>
     {
+        public int ID { get; private set; }
+        public double gCost { get; private set; } //Cost start node to current node.
+        public double hCost { get; private set; } //Cost from current node to destination node.
+        public double fCost { get { return gCost + hCost; } } //Total cost.
+        public Node parent { get; private set; }
 
+        public Node(int ID)
+        {
+           this.ID = ID;
+
+           gCost = double.MaxValue;
+           hCost = double.MaxValue;
+        }
+
+        public int CompareTo(Node other)
+        {
+            var c = fCost.CompareTo(other.fCost);
+
+            if(c == 0)
+            {
+                c = hCost.CompareTo(other.hCost);   
+            }
+
+            return c;
+        }
+
+        public void SetParent(Node parent)
+        {
+            this.parent = parent;
+        }
+
+        public void SetGCost(double gCost)
+        {
+            this.gCost = gCost;
+        }
+
+        public void SetHCost(double hCost)
+        {
+            this.hCost = hCost;
+        }
     }
 
     internal class Edge
