@@ -6,7 +6,8 @@ namespace Pathfinder
     {
         private static void Main()
         {
-            var mapImage = new Bitmap("Map.png");
+            // var mapImage = new Bitmap("Map.png");
+            var mapImage = new Bitmap("LargeMap.png");
 
             var map = Map.Read(mapImage);
             
